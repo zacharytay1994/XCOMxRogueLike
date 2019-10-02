@@ -24,6 +24,7 @@ public class Room
         { "grass_block", TileType.GRASS },
         { "dirt_block", TileType.DIRT }
     };
+
     // define if tiles type is solid or empty here here
     private static readonly TileType[] solid_hash_ = { TileType.CONNECTOR, TileType.GRASS, TileType.DIRT };
     private static readonly HashSet<TileType> solid_tiles_ = new HashSet<TileType>(solid_hash_);
@@ -90,7 +91,7 @@ public class Room
     private Vector3Int world_offset_;
 
     public RoomAABB bounding_;
-    Vector3Int position_offset_ = new Vector3Int(0, 0, 0);
+    public Vector3Int position_offset_ = new Vector3Int(0, 0, 0);
     public int layer_height_ = 0;
 
     // connector variables
@@ -104,7 +105,7 @@ public class Room
     public List<Door> sw_doors_ = new List<Door>();
     public List<Door> se_doors_ = new List<Door>();
 
-    RoomTile[,] tile_list_;         // tiles in room
+    public RoomTile[,] tile_list_;         // tiles in room
 
     // room bounding box
     // ================================================== //
@@ -142,6 +143,7 @@ public class Room
         TileType temp_tiletype;
         int xMaxMinusOne = bounds.xMax - 1;
         int yMaxMinusOne = bounds.yMax - 1;
+        position_offset_ = new Vector3Int(bounds.xMin, bounds.yMin, 0);
         //int yMinPlusOne 
         // get all tiles within bounds
         for (int x = 0, rx = bounds.xMin; x < bounds.size.x; x++, rx++)
@@ -213,19 +215,19 @@ public class Room
         Vector3Int new_position = new Vector3Int();
         if (thisdoor.orientation_ == "NW")
         {
-            new_position = new Vector3Int(otherdoor.grid_position_.x, otherdoor.grid_position_.y - 1, otherdoor.grid_position_.z - 2);
+            new_position = new Vector3Int(otherdoor.grid_position_.x, otherdoor.grid_position_.y - 1, otherdoor.grid_position_.z);
         }
         else if (thisdoor.orientation_ == "NE")
         {
-            new_position = new Vector3Int(otherdoor.grid_position_.x - 1, otherdoor.grid_position_.y, otherdoor.grid_position_.z - 2);
+            new_position = new Vector3Int(otherdoor.grid_position_.x - 1, otherdoor.grid_position_.y, otherdoor.grid_position_.z);
         }
         else if (thisdoor.orientation_ == "SW")
         {
-            new_position = new Vector3Int(otherdoor.grid_position_.x + 1, otherdoor.grid_position_.y, otherdoor.grid_position_.z + 2);
+            new_position = new Vector3Int(otherdoor.grid_position_.x + 1, otherdoor.grid_position_.y, otherdoor.grid_position_.z);
         }
         else if (thisdoor.orientation_ == "SE")
         {
-            new_position = new Vector3Int(otherdoor.grid_position_.x, otherdoor.grid_position_.y + 1, otherdoor.grid_position_.z + 2);
+            new_position = new Vector3Int(otherdoor.grid_position_.x, otherdoor.grid_position_.y + 1, otherdoor.grid_position_.z);
         }
         return new_position - thisdoor.grid_position_;
     }

@@ -37,15 +37,12 @@ public class Room
     public struct LiteRoomTile
     {
         public Constants.TileType tile_type_;   // the type of tile it is
-        //public bool is_occupied_;               // if the top of the tile is currently occupied
-        //public bool is_edge_;                   // is the tile is on the edge of the room
-        //public bool is_walkable_;               // if the tile is walkable
-        //public Vector2Int position_in_room_;    // position offset from room center
-        //public Vector2Int position_in_world_;   // position offset from world center
+        public Constants.TileType top_tile_type_;
 
-        public void Init(Constants.TileType type)
+        public void Init(Constants.TileType type, Constants.TileType toptype)
         {
             tile_type_ = type;
+            top_tile_type_ = toptype;
         }
     }
 
@@ -69,6 +66,7 @@ public class Room
     // ================================================== //
     public GameObject game_object_;     // game object representing the room
     public Tilemap tilemap_;            // tilemap it belongs to
+    public Tilemap entity_tilemap;
     private int world_height_;          // value representing this rooms layer height in the world
     private int x_;                     // north_west dimension
     private int y_;                     // north_east dimension
@@ -108,7 +106,8 @@ public class Room
     {
         // setting tilemap variables
         game_object_ = gameobject;
-        tilemap_ = game_object_.GetComponent<Tilemap>();
+        tilemap_ = game_object_.transform.GetChild(0).gameObject.GetComponent<Tilemap>();
+        entity_tilemap = game_object_.transform.GetChild(1).gameObject.GetComponent<Tilemap>();
         // get used area of tilemap and define its dimensions
         tilemap_.CompressBounds();
         BoundsInt temp_bounds = tilemap_.cellBounds;
@@ -126,6 +125,7 @@ public class Room
         // create tile array
         LiteRoomTile[,] tile_list = new LiteRoomTile[x_,y_];
         Constants.TileType temp_tiletype;
+        Constants.TileType top_tiletype;
         int xMaxMinusOne = bounds.xMax - 1;
         int yMaxMinusOne = bounds.yMax - 1;
         position_offset_ = new Vector3Int(bounds.xMin, bounds.yMin, 0);
@@ -139,6 +139,14 @@ public class Room
                 if (tilemap_.GetTile<Tile>(grid_position) != null)
                 {
                     temp_tiletype = Constants.GetTypeFromSprite(GeneralFunctions.GetTileSpriteName(tilemap_, grid_position));
+                    if (entity_tilemap.GetTile<Tile>(grid_position) != null)
+                    {
+                        top_tiletype = Constants.GetTypeFromSprite(GeneralFunctions.GetTileSpriteName(entity_tilemap, grid_position));
+                    }
+                    else
+                    {
+                        top_tiletype = Constants.TileType.NONE;
+                    }
                     // if tiletype is door and is valid (i.e. at convex edge of room), add to door list
                     if (temp_tiletype == Constants.TileType.CONNECTOR)
                     {
@@ -178,11 +186,11 @@ public class Room
                         }
                     }
                     // gets sprite name and checks with dictionary to get enum TileType
-                    tile_list[x, y].Init(temp_tiletype);
+                    tile_list[x, y].Init(temp_tiletype, top_tiletype);
                 }
                 else
                 {
-                    tile_list[x, y].Init(Constants.TileType.NONE);
+                    tile_list[x, y].Init(Constants.TileType.NONE, Constants.TileType.NONE);
                 }
             }
         }
@@ -234,7 +242,7 @@ public class Room
             bounding_.sw_bound_ + offset.x,
             bounding_.se_bound_ + offset.y,
             offset.z);
-        game_object_.GetComponent<Tilemap>().tileAnchor = new Vector3(offset.x, offset.y, offset.z);
+        tilemap_.tileAnchor = new Vector3(offset.x, offset.y, offset.z);
         for (int nw = 0; nw < nw_doors_.Count; nw++)
         {
             nw_doors_[nw] = new Door(nw_doors_[nw].orientation_, nw_doors_[nw].grid_position_ + offset);
@@ -252,7 +260,7 @@ public class Room
             se_doors_[se] = new Door(se_doors_[se].orientation_, se_doors_[se].grid_position_ + offset);
         }
         world_height_ = offset.z / 2;
-        game_object_.GetComponent<TilemapRenderer>().sortingOrder = world_height_; 
+        game_object_.transform.GetChild(0).gameObject.GetComponent<TilemapRenderer>().sortingOrder = world_height_; 
     }
 }
 

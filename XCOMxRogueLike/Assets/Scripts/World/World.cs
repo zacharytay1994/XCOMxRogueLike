@@ -18,7 +18,9 @@ public class World : MonoBehaviour
     private List<Room> room_list_;
     private List<Room> room_clone_list_ = new List<Room>();
     private GameObject base_layer_;
+    private GameObject entity_layer_;
     private Tilemap base_tilemap_;
+    private Tilemap entity_tilemap_;
 
 
     // World grid variables
@@ -30,6 +32,8 @@ public class World : MonoBehaviour
         // Assign BaseLayer Tilemap
         base_layer_ = GameObject.Find("Grid").transform.GetChild(0).gameObject;
         base_tilemap_ = base_layer_.GetComponent<Tilemap>();
+        entity_layer_ = GameObject.Find("Grid").transform.GetChild(1).gameObject;
+        entity_tilemap_ = entity_layer_.GetComponent<Tilemap>();
 
         // Get all room prefabs starting with "Rm" from Assets/Prefabs/Rooms 
         // and returns a list of instantiated Rooms using the GameObjects
@@ -53,7 +57,7 @@ public class World : MonoBehaviour
     public List<Room> ReadTilemapsToRoom()
     {
         List<Room> temp_list = new List<Room>();
-        string[] rm_guids = AssetDatabase.FindAssets("Rm", new[] { "Assets/Prefabs/Rooms" });
+        string[] rm_guids = AssetDatabase.FindAssets("CRm", new[] { "Assets/Prefabs/Rooms" });
         foreach (string s in rm_guids)
         {
             temp_list.Add(new Room((GameObject)AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(s), typeof(GameObject))));
@@ -303,18 +307,23 @@ public class World : MonoBehaviour
         {
             for (int x = 0; x < room.tile_list_.GetLength(0); x++)
             {
-                SetTile(room.tile_list_[x, y].tile_type_, x + offset.x + room.position_offset_.x, y + offset.y + room.position_offset_.y);
+                SetTile(room.tile_list_[x, y].tile_type_, room.tile_list_[x,y].top_tile_type_,
+                    x + offset.x + room.position_offset_.x, y + offset.y + room.position_offset_.y);
             }
         }
     }
 
-    public void SetTile(Constants.TileType type, int x, int y)
+    public void SetTile(Constants.TileType type, Constants.TileType toptype, int x, int y)
     {
         if (type == Constants.TileType.NONE)
         {
             return;
         }
-        base_layer_.GetComponent<Tilemap>().SetTile(new Vector3Int(x, y, 0), GeneralFunctions.GetTileBase(Constants.GetSpriteFromType(type)));
+        base_tilemap_.SetTile(new Vector3Int(x, y, 0), GeneralFunctions.GetTileBase(Constants.GetSpriteFromType(type)));
+        if (toptype != Constants.TileType.NONE)
+        {
+            entity_tilemap_.SetTile(new Vector3Int(x, y, 0), GeneralFunctions.GetTileBase(Constants.GetSpriteFromType(toptype)));
+        }
     } 
 
     // temporary - maybe - solution

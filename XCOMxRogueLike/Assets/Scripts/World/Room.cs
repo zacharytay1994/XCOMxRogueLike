@@ -5,62 +5,47 @@ using UnityEngine.Tilemaps;
 
 public class Room
 {
-    // ================================================== //
-    // TYPES OF TILES - ADD NEW TILES HERE
-    // ================================================== //
-    // add new enums here for new tiles
-    public enum TileType
-    {
-        NONE,
-        CONNECTOR,
-        GRASS,
-        DIRT,
-    }
-    // add new dictionary entries here for new tiles
-    // dictionary of tiles, key : filename of asset, value : enum TileType
-    public Dictionary<string, TileType> SpriteToType = new Dictionary<string, TileType>()
-    {
-        { "connector_block", TileType.CONNECTOR },
-        { "grass_block", TileType.GRASS },
-        { "dirt_block", TileType.DIRT }
-    };
+    //// ================================================== //
+    //// TYPES OF TILES - ADD NEW TILES HERE
+    //// ================================================== //
+    //// add new enums here for new tiles
+    //public enum TileType
+    //{
+    //    NONE,
+    //    CONNECTOR,
+    //    GRASS,
+    //    DIRT,
+    //}
+    //// add new dictionary entries here for new tiles
+    //// dictionary of tiles, key : filename of asset, value : enum TileType
+    //public Dictionary<string, TileType> SpriteToType = new Dictionary<string, TileType>()
+    //{
+    //    { "connector_block", TileType.CONNECTOR },
+    //    { "grass_block", TileType.GRASS },
+    //    { "dirt_block", TileType.DIRT }
+    //};
 
-    // define if tiles type is solid or empty here here
-    private static readonly TileType[] solid_hash_ = { TileType.CONNECTOR, TileType.GRASS, TileType.DIRT };
-    private static readonly HashSet<TileType> solid_tiles_ = new HashSet<TileType>(solid_hash_);
-    private static readonly TileType[] void_hash_ = { TileType.NONE };
-    private static readonly HashSet<TileType> void_tiles_ = new HashSet<TileType>(void_hash_);
+    //// define if tiles type is solid or empty here here
+    //private static readonly TileType[] solid_hash_ = { TileType.CONNECTOR, TileType.GRASS, TileType.DIRT };
+    //private static readonly HashSet<TileType> solid_tiles_ = new HashSet<TileType>(solid_hash_);
+    //private static readonly TileType[] void_hash_ = { TileType.NONE };
+    //private static readonly HashSet<TileType> void_tiles_ = new HashSet<TileType>(void_hash_);
 
     // ================================================== //
-    // TILE DEFINITION
+    // LITE TILE DEFINITION - Only used for preprocessing
     // ================================================== //
-    public struct RoomTile
+    public struct LiteRoomTile
     {
-        public TileType tile_type_;             // the type of tile it is
-        public bool is_occupied_;               // if the top of the tile is currently occupied
-        public bool is_edge_;                   // is the tile is on the edge of the room
-        public bool is_walkable_;               // if the tile is walkable
-        public Vector2Int position_in_room_;    // position offset from room center
-        public Vector2Int position_in_world_;   // position offset from world center
+        public Constants.TileType tile_type_;   // the type of tile it is
+        //public bool is_occupied_;               // if the top of the tile is currently occupied
+        //public bool is_edge_;                   // is the tile is on the edge of the room
+        //public bool is_walkable_;               // if the tile is walkable
+        //public Vector2Int position_in_room_;    // position offset from room center
+        //public Vector2Int position_in_world_;   // position offset from world center
 
-        public void Init(TileType type, Vector2Int roomposition)
+        public void Init(Constants.TileType type)
         {
-            if (void_tiles_.Contains(type))
-            {
-                is_occupied_ = false;
-                is_edge_ = false;
-                is_walkable_ = false;
-                position_in_room_ = roomposition;
-                tile_type_ = type;
-            }
-            else if (solid_tiles_.Contains(type))
-            {
-                is_occupied_ = false;
-                is_walkable_ = true;
-                tile_type_ = type;
-                position_in_room_ = roomposition;
-                tile_type_ = type;
-            }
+            tile_type_ = type;
         }
     }
 
@@ -88,7 +73,7 @@ public class Room
     private int x_;                     // north_west dimension
     private int y_;                     // north_east dimension
     private Vector3Int room_origin_;    // world center of the room, bottom corner (0,0)
-    private Vector3Int world_offset_;
+    private Vector3Int world_offset_;   // offset of room world position
 
     public RoomAABB bounding_;
     public Vector3Int position_offset_ = new Vector3Int(0, 0, 0);
@@ -105,7 +90,7 @@ public class Room
     public List<Door> sw_doors_ = new List<Door>();
     public List<Door> se_doors_ = new List<Door>();
 
-    public RoomTile[,] tile_list_;         // tiles in room
+    public LiteRoomTile[,] tile_list_;         // tiles in room
 
     // room bounding box
     // ================================================== //
@@ -136,11 +121,11 @@ public class Room
     }
 
     // Fills tile list with tiles
-    public RoomTile[,] GetTiles(BoundsInt bounds)
+    public LiteRoomTile[,] GetTiles(BoundsInt bounds)
     {
         // create tile array
-        RoomTile[,] tile_list = new RoomTile[x_,y_];
-        TileType temp_tiletype;
+        LiteRoomTile[,] tile_list = new LiteRoomTile[x_,y_];
+        Constants.TileType temp_tiletype;
         int xMaxMinusOne = bounds.xMax - 1;
         int yMaxMinusOne = bounds.yMax - 1;
         position_offset_ = new Vector3Int(bounds.xMin, bounds.yMin, 0);
@@ -152,9 +137,9 @@ public class Room
             {
                 if (tilemap_.GetTile<Tile>(new Vector3Int(rx,ry,0)) != null)
                 {
-                    temp_tiletype = SpriteToType[tilemap_.GetTile<Tile>(new Vector3Int(rx, ry, 0)).sprite.name];
+                    temp_tiletype = Constants.GetTypeFromSprite(tilemap_.GetTile<Tile>(new Vector3Int(rx, ry, 0)).sprite.name);
                     // if tiletype is door and is valid (i.e. at convex edge of room), add to door list
-                    if (temp_tiletype == TileType.CONNECTOR)
+                    if (temp_tiletype == Constants.TileType.CONNECTOR)
                     {
                         // if connector is a corner tile
                         if (rx == bounds.xMin && ry == bounds.yMin)
@@ -192,11 +177,11 @@ public class Room
                         }
                     }
                     // gets sprite name and checks with dictionary to get enum TileType
-                    tile_list[x, y].Init(temp_tiletype, new Vector2Int(x,y));
+                    tile_list[x, y].Init(temp_tiletype);
                 }
                 else
                 {
-                    tile_list[x, y].Init(TileType.NONE, new Vector2Int(x, y));
+                    tile_list[x, y].Init(Constants.TileType.NONE);
                 }
             }
         }

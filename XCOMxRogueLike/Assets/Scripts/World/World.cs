@@ -6,23 +6,28 @@ using UnityEditor;
 
 public class World : MonoBehaviour
 {
-    // inverse dictionary
-    public Dictionary<Room.TileType, string> TypeToSprite = new Dictionary<Room.TileType, string>()
-    {
-        { Room.TileType.CONNECTOR, "connector_block" },
-        { Room.TileType.GRASS, "grass_block" },
-        { Room.TileType.DIRT, "dirt_block" }
-    };
+    //// inverse dictionary
+    //public Dictionary<Constants.TileType, string> TypeToSprite = new Dictionary<Room.TileType, string>()
+    //{
+    //    { Room.TileType.CONNECTOR, "connector_block" },
+    //    { Room.TileType.GRASS, "grass_block" },
+    //    { Room.TileType.DIRT, "dirt_block" }
+    //};
 
     public int generation_iteration_ = 10;
     private List<Room> room_list_;
     private List<Room> room_clone_list_ = new List<Room>();
-    private GameObject base_layer;
+    private GameObject base_layer_;
+
+
+    // World grid variables
+    private Room.LiteRoomTile[,] grid_base_layer_;
+
     // Start is called before the first frame update
     void Start()
     {
         // Assign BaseLayer Tilemap
-        base_layer = GameObject.Find("Grid").transform.GetChild(0).gameObject;
+        base_layer_ = GameObject.Find("Grid").transform.GetChild(0).gameObject;
 
         // Get all room prefabs starting with "Rm" from Assets/Prefabs/Rooms 
         // and returns a list of instantiated Rooms using the GameObjects
@@ -298,12 +303,30 @@ public class World : MonoBehaviour
         }
     }
 
-    public void SetTile(Room.TileType type, int x, int y)
+    public void SetTile(Constants.TileType type, int x, int y)
     {
-        if (type == Room.TileType.NONE)
+        if (type == Constants.TileType.NONE)
         {
             return;
         }
-        base_layer.GetComponent<Tilemap>().SetTile(new Vector3Int(x, y, 0), GeneralFunctions.GetTileBase(TypeToSprite[type]));
+        base_layer_.GetComponent<Tilemap>().SetTile(new Vector3Int(x, y, 0), GeneralFunctions.GetTileBase(Constants.GetSpriteFromType(type)));
     } 
+
+    // temporary - maybe - solution
+    // Pre  : Base tilemap is filled
+    // Post : grid_base_layer_ is filled with Room.RoomTiles
+    public void ProcessBaseTiles()
+    {
+        // get base tilemap bounds
+        base_layer_.GetComponent<Tilemap>().CompressBounds();
+        BoundsInt bounds = base_layer_.GetComponent<Tilemap>().cellBounds;
+        // loop through and init all tiles within bounds
+        for (int y = 0, ry = bounds.yMin; ry < bounds.yMax - 1; y++, ry++)
+        {
+            for (int x = 0, rx = bounds.xMin; rx < bounds.xMax - 1; x++, rx++)
+            {
+                //if ()
+            }
+        }
+    }
 }

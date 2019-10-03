@@ -18,16 +18,18 @@ public class World : MonoBehaviour
     private List<Room> room_list_;
     private List<Room> room_clone_list_ = new List<Room>();
     private GameObject base_layer_;
+    private Tilemap base_tilemap_;
 
 
     // World grid variables
-    private Room.LiteRoomTile[,] grid_base_layer_;
+    private Constants.RoomTile[,] grid_base_layer_;
 
     // Start is called before the first frame update
     void Start()
     {
         // Assign BaseLayer Tilemap
         base_layer_ = GameObject.Find("Grid").transform.GetChild(0).gameObject;
+        base_tilemap_ = base_layer_.GetComponent<Tilemap>();
 
         // Get all room prefabs starting with "Rm" from Assets/Prefabs/Rooms 
         // and returns a list of instantiated Rooms using the GameObjects
@@ -35,6 +37,9 @@ public class World : MonoBehaviour
 
         // Procedurally spawns a map by joining randomly joining the listed Rooms
         SpawnRooms();
+
+        // Process and generate grid of base tiles
+        ProcessBaseTiles();
     }
 
     // Update is called once per frame
@@ -318,14 +323,25 @@ public class World : MonoBehaviour
     public void ProcessBaseTiles()
     {
         // get base tilemap bounds
-        base_layer_.GetComponent<Tilemap>().CompressBounds();
-        BoundsInt bounds = base_layer_.GetComponent<Tilemap>().cellBounds;
+        base_tilemap_.CompressBounds();
+        BoundsInt bounds = base_tilemap_.cellBounds;
+        grid_base_layer_ = new Constants.RoomTile[bounds.size.x, bounds.size.y];
         // loop through and init all tiles within bounds
         for (int y = 0, ry = bounds.yMin; ry < bounds.yMax - 1; y++, ry++)
         {
             for (int x = 0, rx = bounds.xMin; rx < bounds.xMax - 1; x++, rx++)
             {
-                //if ()
+                Vector3Int grid_position = new Vector3Int(rx, ry, 0);
+
+                if (base_tilemap_.GetTile<Tile>(grid_position) != null)
+                {
+                    grid_base_layer_[x, y].Init(Constants.GetTypeFromSprite(GeneralFunctions.GetTileSpriteName(base_tilemap_, grid_position)),
+                        (Vector2Int)grid_position);
+                }
+                else
+                {
+                    grid_base_layer_[x, y].Init(Constants.TileType.NONE, (Vector2Int)grid_position);
+                }
             }
         }
     }

@@ -135,9 +135,10 @@ public class Room
         {
             for (int y = 0, ry = bounds.yMin; y < bounds.size.y; y++, ry++)
             {
-                if (tilemap_.GetTile<Tile>(new Vector3Int(rx,ry,0)) != null)
+                Vector3Int grid_position = new Vector3Int(rx, ry, 0);
+                if (tilemap_.GetTile<Tile>(grid_position) != null)
                 {
-                    temp_tiletype = Constants.GetTypeFromSprite(tilemap_.GetTile<Tile>(new Vector3Int(rx, ry, 0)).sprite.name);
+                    temp_tiletype = Constants.GetTypeFromSprite(GeneralFunctions.GetTileSpriteName(tilemap_, grid_position));
                     // if tiletype is door and is valid (i.e. at convex edge of room), add to door list
                     if (temp_tiletype == Constants.TileType.CONNECTOR)
                     {

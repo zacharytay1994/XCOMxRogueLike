@@ -5,61 +5,44 @@ using UnityEngine.Tilemaps;
 
 public class Room
 {
-    // ================================================== //
-    // TYPES OF TILES - ADD NEW TILES HERE
-    // ================================================== //
-    // add new enums here for new tiles
-    public enum TileType
-    {
-        NONE,
-        CONNECTOR,
-        GRASS,
-        DIRT,
-    }
-    // add new dictionary entries here for new tiles
-    // dictionary of tiles, key : filename of asset, value : enum TileType
-    public Dictionary<string, TileType> SpriteToType = new Dictionary<string, TileType>()
-    {
-        { "connector_block", TileType.CONNECTOR },
-        { "grass_block", TileType.GRASS },
-        { "dirt_block", TileType.DIRT }
-    };
-    // define if tiles type is solid or empty here here
-    private static readonly TileType[] solid_hash_ = { TileType.CONNECTOR, TileType.GRASS, TileType.DIRT };
-    private static readonly HashSet<TileType> solid_tiles_ = new HashSet<TileType>(solid_hash_);
-    private static readonly TileType[] void_hash_ = { TileType.NONE };
-    private static readonly HashSet<TileType> void_tiles_ = new HashSet<TileType>(void_hash_);
+    //// ================================================== //
+    //// TYPES OF TILES - ADD NEW TILES HERE
+    //// ================================================== //
+    //// add new enums here for new tiles
+    //public enum TileType
+    //{
+    //    NONE,
+    //    CONNECTOR,
+    //    GRASS,
+    //    DIRT,
+    //}
+    //// add new dictionary entries here for new tiles
+    //// dictionary of tiles, key : filename of asset, value : enum TileType
+    //public Dictionary<string, TileType> SpriteToType = new Dictionary<string, TileType>()
+    //{
+    //    { "connector_block", TileType.CONNECTOR },
+    //    { "grass_block", TileType.GRASS },
+    //    { "dirt_block", TileType.DIRT }
+    //};
+
+    //// define if tiles type is solid or empty here here
+    //private static readonly TileType[] solid_hash_ = { TileType.CONNECTOR, TileType.GRASS, TileType.DIRT };
+    //private static readonly HashSet<TileType> solid_tiles_ = new HashSet<TileType>(solid_hash_);
+    //private static readonly TileType[] void_hash_ = { TileType.NONE };
+    //private static readonly HashSet<TileType> void_tiles_ = new HashSet<TileType>(void_hash_);
 
     // ================================================== //
-    // TILE DEFINITION
+    // LITE TILE DEFINITION - Only used for preprocessing
     // ================================================== //
-    public struct RoomTile
+    public struct LiteRoomTile
     {
-        public TileType tile_type_;             // the type of tile it is
-        public bool is_occupied_;               // if the top of the tile is currently occupied
-        public bool is_edge_;                   // is the tile is on the edge of the room
-        public bool is_walkable_;               // if the tile is walkable
-        public Vector2Int position_in_room_;    // position offset from room center
-        public Vector2Int position_in_world_;   // position offset from world center
+        public Constants.TileType tile_type_;   // the type of tile it is
+        public Constants.TileType top_tile_type_;
 
-        public void Init(TileType type, Vector2Int roomposition)
+        public void Init(Constants.TileType type, Constants.TileType toptype)
         {
-            if (void_tiles_.Contains(type))
-            {
-                is_occupied_ = false;
-                is_edge_ = false;
-                is_walkable_ = false;
-                position_in_room_ = roomposition;
-                tile_type_ = type;
-            }
-            else if (solid_tiles_.Contains(type))
-            {
-                is_occupied_ = false;
-                is_walkable_ = true;
-                tile_type_ = type;
-                position_in_room_ = roomposition;
-                tile_type_ = type;
-            }
+            tile_type_ = type;
+            top_tile_type_ = toptype;
         }
     }
 
@@ -83,14 +66,15 @@ public class Room
     // ================================================== //
     public GameObject game_object_;     // game object representing the room
     public Tilemap tilemap_;            // tilemap it belongs to
+    public Tilemap entity_tilemap;
     private int world_height_;          // value representing this rooms layer height in the world
     private int x_;                     // north_west dimension
     private int y_;                     // north_east dimension
     private Vector3Int room_origin_;    // world center of the room, bottom corner (0,0)
-    private Vector3Int world_offset_;
+    private Vector3Int world_offset_;   // offset of room world position
 
     public RoomAABB bounding_;
-    Vector3Int position_offset_ = new Vector3Int(0, 0, 0);
+    public Vector3Int position_offset_ = new Vector3Int(0, 0, 0);
     public int layer_height_ = 0;
 
     // connector variables
@@ -104,7 +88,7 @@ public class Room
     public List<Door> sw_doors_ = new List<Door>();
     public List<Door> se_doors_ = new List<Door>();
 
-    RoomTile[,] tile_list_;         // tiles in room
+    public LiteRoomTile[,] tile_list_;         // tiles in room
 
     // room bounding box
     // ================================================== //
@@ -122,7 +106,8 @@ public class Room
     {
         // setting tilemap variables
         game_object_ = gameobject;
-        tilemap_ = game_object_.GetComponent<Tilemap>();
+        tilemap_ = game_object_.transform.GetChild(0).gameObject.GetComponent<Tilemap>();
+        entity_tilemap = game_object_.transform.GetChild(1).gameObject.GetComponent<Tilemap>();
         // get used area of tilemap and define its dimensions
         tilemap_.CompressBounds();
         BoundsInt temp_bounds = tilemap_.cellBounds;
@@ -135,24 +120,35 @@ public class Room
     }
 
     // Fills tile list with tiles
-    public RoomTile[,] GetTiles(BoundsInt bounds)
+    public LiteRoomTile[,] GetTiles(BoundsInt bounds)
     {
         // create tile array
-        RoomTile[,] tile_list = new RoomTile[x_,y_];
-        TileType temp_tiletype;
+        LiteRoomTile[,] tile_list = new LiteRoomTile[x_,y_];
+        Constants.TileType temp_tiletype;
+        Constants.TileType top_tiletype;
         int xMaxMinusOne = bounds.xMax - 1;
         int yMaxMinusOne = bounds.yMax - 1;
+        position_offset_ = new Vector3Int(bounds.xMin, bounds.yMin, 0);
         //int yMinPlusOne 
         // get all tiles within bounds
         for (int x = 0, rx = bounds.xMin; x < bounds.size.x; x++, rx++)
         {
             for (int y = 0, ry = bounds.yMin; y < bounds.size.y; y++, ry++)
             {
-                if (tilemap_.GetTile<Tile>(new Vector3Int(rx,ry,0)) != null)
+                Vector3Int grid_position = new Vector3Int(rx, ry, 0);
+                if (tilemap_.GetTile<Tile>(grid_position) != null)
                 {
-                    temp_tiletype = SpriteToType[tilemap_.GetTile<Tile>(new Vector3Int(rx, ry, 0)).sprite.name];
+                    temp_tiletype = Constants.GetTypeFromSprite(GeneralFunctions.GetTileSpriteName(tilemap_, grid_position));
+                    if (entity_tilemap.GetTile<Tile>(grid_position) != null)
+                    {
+                        top_tiletype = Constants.GetTypeFromSprite(GeneralFunctions.GetTileSpriteName(entity_tilemap, grid_position));
+                    }
+                    else
+                    {
+                        top_tiletype = Constants.TileType.NONE;
+                    }
                     // if tiletype is door and is valid (i.e. at convex edge of room), add to door list
-                    if (temp_tiletype == TileType.CONNECTOR)
+                    if (temp_tiletype == Constants.TileType.CONNECTOR)
                     {
                         // if connector is a corner tile
                         if (rx == bounds.xMin && ry == bounds.yMin)
@@ -190,11 +186,11 @@ public class Room
                         }
                     }
                     // gets sprite name and checks with dictionary to get enum TileType
-                    tile_list[x, y].Init(temp_tiletype, new Vector2Int(x,y));
+                    tile_list[x, y].Init(temp_tiletype, top_tiletype);
                 }
                 else
                 {
-                    tile_list[x, y].Init(TileType.NONE, new Vector2Int(x, y));
+                    tile_list[x, y].Init(Constants.TileType.NONE, Constants.TileType.NONE);
                 }
             }
         }
@@ -213,19 +209,19 @@ public class Room
         Vector3Int new_position = new Vector3Int();
         if (thisdoor.orientation_ == "NW")
         {
-            new_position = new Vector3Int(otherdoor.grid_position_.x, otherdoor.grid_position_.y - 1, otherdoor.grid_position_.z - 2);
+            new_position = new Vector3Int(otherdoor.grid_position_.x, otherdoor.grid_position_.y - 1, otherdoor.grid_position_.z);
         }
         else if (thisdoor.orientation_ == "NE")
         {
-            new_position = new Vector3Int(otherdoor.grid_position_.x - 1, otherdoor.grid_position_.y, otherdoor.grid_position_.z - 2);
+            new_position = new Vector3Int(otherdoor.grid_position_.x - 1, otherdoor.grid_position_.y, otherdoor.grid_position_.z);
         }
         else if (thisdoor.orientation_ == "SW")
         {
-            new_position = new Vector3Int(otherdoor.grid_position_.x + 1, otherdoor.grid_position_.y, otherdoor.grid_position_.z + 2);
+            new_position = new Vector3Int(otherdoor.grid_position_.x + 1, otherdoor.grid_position_.y, otherdoor.grid_position_.z);
         }
         else if (thisdoor.orientation_ == "SE")
         {
-            new_position = new Vector3Int(otherdoor.grid_position_.x, otherdoor.grid_position_.y + 1, otherdoor.grid_position_.z + 2);
+            new_position = new Vector3Int(otherdoor.grid_position_.x, otherdoor.grid_position_.y + 1, otherdoor.grid_position_.z);
         }
         return new_position - thisdoor.grid_position_;
     }
@@ -246,7 +242,7 @@ public class Room
             bounding_.sw_bound_ + offset.x,
             bounding_.se_bound_ + offset.y,
             offset.z);
-        game_object_.GetComponent<Tilemap>().tileAnchor = new Vector3(offset.x, offset.y, offset.z);
+        tilemap_.tileAnchor = new Vector3(offset.x, offset.y, offset.z);
         for (int nw = 0; nw < nw_doors_.Count; nw++)
         {
             nw_doors_[nw] = new Door(nw_doors_[nw].orientation_, nw_doors_[nw].grid_position_ + offset);
@@ -264,7 +260,7 @@ public class Room
             se_doors_[se] = new Door(se_doors_[se].orientation_, se_doors_[se].grid_position_ + offset);
         }
         world_height_ = offset.z / 2;
-        game_object_.GetComponent<TilemapRenderer>().sortingOrder = world_height_; 
+        game_object_.transform.GetChild(0).gameObject.GetComponent<TilemapRenderer>().sortingOrder = world_height_; 
     }
 }
 

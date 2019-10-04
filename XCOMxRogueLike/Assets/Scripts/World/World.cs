@@ -14,7 +14,7 @@ public class World : MonoBehaviour
     //    { Room.TileType.DIRT, "dirt_block" }
     //};
 
-    public int generation_iteration_ = 10;
+    public int generation_iteration_ = 0;
     private List<Room> room_list_;
     private List<Room> room_clone_list_ = new List<Room>();
     private GameObject base_layer_;
@@ -22,9 +22,13 @@ public class World : MonoBehaviour
     private Tilemap base_tilemap_;
     private Tilemap entity_tilemap_;
 
+    public AI pathfinding = new AI();
+
 
     // World grid variables
     private Constants.RoomTile[,] grid_base_layer_;
+    private Constants.RoomTile[,] entity_base_layer_;
+    private int[,] collision_flags_;
 
     // Start is called before the first frame update
     void Start()
@@ -43,7 +47,9 @@ public class World : MonoBehaviour
         SpawnRooms();
 
         // Process and generate grid of base tiles
-        ProcessBaseTiles();
+        ProcessTiles();
+        List<Node> path = new List<Node>();
+        bool test = pathfinding.FindPath(new Vector2Int(0, 5), new Vector2Int(5, 10), ref path);
     }
 
     // Update is called once per frame
@@ -234,7 +240,7 @@ public class World : MonoBehaviour
     public void SpawnRooms()
     {
         // create origin room, selects room 0, at least one room should be present as a prefab
-        room_clone_list_.Add(new Room(room_list_[0].game_object_));
+        room_clone_list_.Add(new Room(room_list_[3].game_object_));
         FillBaseTilemap(room_clone_list_[0], new Vector3Int(0, 0, 0));
 
         for (int i = 0; i < generation_iteration_; i++)
@@ -327,14 +333,16 @@ public class World : MonoBehaviour
     } 
 
     // temporary - maybe - solution
-    // Pre  : Base tilemap is filled
+    // Pre  : base_tilemap_ is filled
     // Post : grid_base_layer_ is filled with Room.RoomTiles
-    public void ProcessBaseTiles()
+    public void ProcessTiles()
     {
         // get base tilemap bounds
         base_tilemap_.CompressBounds();
         BoundsInt bounds = base_tilemap_.cellBounds;
         grid_base_layer_ = new Constants.RoomTile[bounds.size.x, bounds.size.y];
+        entity_base_layer_ = new Constants.RoomTile[bounds.size.x, bounds.size.y];
+        collision_flags_ = new int[bounds.size.x, bounds.size.y];
         // loop through and init all tiles within bounds
         for (int y = 0, ry = bounds.yMin; ry < bounds.yMax - 1; y++, ry++)
         {
@@ -351,7 +359,19 @@ public class World : MonoBehaviour
                 {
                     grid_base_layer_[x, y].Init(Constants.TileType.NONE, (Vector2Int)grid_position);
                 }
+
+                if (entity_tilemap_.GetTile<Tile>(grid_position) != null)
+                {
+                    entity_base_layer_[x, y].Init(Constants.GetTypeFromSprite(GeneralFunctions.GetTileSpriteName(entity_tilemap_, grid_position)),
+                        (Vector2Int)grid_position);
+                    collision_flags_[x, y] = 1;
+                }
+                else
+                {
+                    entity_base_layer_[x, y].Init(Constants.TileType.NONE, (Vector2Int)grid_position);
+                }
             }
         }
+        pathfinding.grid_.InitGrid(collision_flags_);
     }
 }

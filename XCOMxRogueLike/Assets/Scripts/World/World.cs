@@ -15,6 +15,7 @@ public class World : MonoBehaviour
     //};
 
     public int generation_iteration_ = 0;
+    public int number_of_creepers_ = 10;
     private List<Room> room_list_;
     private List<Room> room_clone_list_ = new List<Room>();
     private GameObject base_layer_;
@@ -29,6 +30,10 @@ public class World : MonoBehaviour
     private Constants.RoomTile[,] grid_base_layer_;
     private Constants.RoomTile[,] entity_base_layer_;
     private int[,] collision_flags_;
+
+    // List of walkable areas for testing purpose
+    public List<Vector2Int> walkable_cells_ = new List<Vector2Int>();
+    public Vector2Int grid_offset_;
 
     // Start is called before the first frame update
     void Start()
@@ -50,6 +55,26 @@ public class World : MonoBehaviour
         ProcessTiles();
         List<Node> path = new List<Node>();
         bool test = pathfinding.FindPath(new Vector2Int(0, 5), new Vector2Int(5, 10), ref path);
+        LoadEntities();
+    }
+
+    void InitializeEntities()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            GameObject.Find("Entities").transform.GetChild(i).gameObject.GetComponent<EntityMove>().WorldReadyInit();
+        }
+    }
+
+    void LoadEntities()
+    {
+        // get creeper prefab
+        GameObject creeper_prefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Entities/Creeper.prefab", typeof(GameObject));
+        Transform parent_transform = GameObject.Find("Entities").transform;
+        for (int i = 0; i < number_of_creepers_; i++)
+        {
+            Instantiate(creeper_prefab, parent_transform).GetComponent<EntityMove>().WorldReadyInit();
+        }
     }
 
     // Update is called once per frame
@@ -343,6 +368,7 @@ public class World : MonoBehaviour
         grid_base_layer_ = new Constants.RoomTile[bounds.size.x, bounds.size.y];
         entity_base_layer_ = new Constants.RoomTile[bounds.size.x, bounds.size.y];
         collision_flags_ = new int[bounds.size.x, bounds.size.y];
+        grid_offset_ = new Vector2Int(bounds.xMin, bounds.yMin);
         // loop through and init all tiles within bounds
         for (int y = 0, ry = bounds.yMin; ry < bounds.yMax - 1; y++, ry++)
         {
@@ -358,6 +384,7 @@ public class World : MonoBehaviour
                 else
                 {
                     grid_base_layer_[x, y].Init(Constants.TileType.NONE, (Vector2Int)grid_position);
+                    collision_flags_[x, y] = 1;
                 }
 
                 if (entity_tilemap_.GetTile<Tile>(grid_position) != null)
@@ -369,6 +396,11 @@ public class World : MonoBehaviour
                 else
                 {
                     entity_base_layer_[x, y].Init(Constants.TileType.NONE, (Vector2Int)grid_position);
+                    // walkable cells for testing purposes
+                    if (collision_flags_[x,y] != 1)
+                    {
+                        walkable_cells_.Add(new Vector2Int(x, y));
+                    }
                 }
             }
         }

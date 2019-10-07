@@ -10,7 +10,7 @@ public class TilemapInput : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        tilemap_ = GameObject.Find("Tilemap - 1st - Base").GetComponent<Tilemap>();
+        tilemap_ = GameObject.Find("BaseLayer").GetComponent<Tilemap>();
     }
 
     // Update is called once per frame
@@ -22,7 +22,7 @@ public class TilemapInput : MonoBehaviour
             Vector3Int gridPos = tilemap_.WorldToCell(mousePos);
 
             if (tilemap_.HasTile(gridPos))
-                Debug.Log("Hello World from " + (gridPos + new Vector3Int(-1,-1,0)));
+                Debug.Log("Hello World from " + (gridPos));
         }
     }
 }

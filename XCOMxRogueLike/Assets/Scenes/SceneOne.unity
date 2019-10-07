@@ -213,8 +213,6 @@ GameObject:
   m_Component:
   - component: {fileID: 840925009}
   - component: {fileID: 840925008}
-  - component: {fileID: 840925010}
-  - component: {fileID: 840925011}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -250,32 +248,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &840925010
-MonoBehaviour:
+--- !u!1 &921776802
+GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 840925007}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34e269379de58b54c9b42396bd9300f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  width_: 10
-  height_: 10
---- !u!114 &840925011
-MonoBehaviour:
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 921776803}
+  m_Layer: 0
+  m_Name: Entities
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &921776803
+Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 840925007}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04e687db10b53094caa52bef3d2c1bf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_GameObject: {fileID: 921776802}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1191105289
 GameObject:
   m_ObjectHideFlags: 0
@@ -429,7 +431,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1429365284}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8df8472f3eb788f43a6cab21997e4a00, type: 3}
   m_Name: 
@@ -593,4 +595,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fc03b4daade4fc459c80df9a9777eba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  generation_iteration_: 20
+  number_of_creepers_: 30

@@ -36,4 +36,9 @@ public class GeneralFunctions : MonoBehaviour
     {
         return (TileBase)AssetDatabase.LoadAssetAtPath("Assets/Sprites/Tiles/" + tilename + ".asset", typeof(TileBase));
     }
+
+    public static string GetTileSpriteName(Tilemap tilemap, Vector3Int position)
+    {
+        return tilemap.GetTile<Tile>(position).sprite.name;
+    }
 }

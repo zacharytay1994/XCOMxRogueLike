@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7123742378577790500}
   - component: {fileID: 2104562329507870947}
+  - component: {fileID: 3558871126565207772}
   m_Layer: 0
-  m_Name: creeper
+  m_Name: ent_creeper2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 4049849602967525315}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -68,8 +69,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 856f81bc989791c4f841942bc4c3b3d1, type: 3}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 21300000, guid: 9312c19f0e0825b4eb11c556256d786e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -80,3 +81,15 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &3558871126565207772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4049849602967525315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72eb693424f504240ab5edb1571307ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class AI
+public class Pathfinding
 {
     public PathfindingGrid grid_ = new PathfindingGrid();
     List<Node> nodes_to_reset_ = new List<Node>();
 
-    public AI()
+    public Pathfinding()
     {
     }
 

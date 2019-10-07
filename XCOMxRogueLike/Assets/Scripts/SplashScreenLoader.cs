@@ -30,14 +30,19 @@ public class SplashScreenLoader : MonoBehaviour
     {
         if (load_scene)
         {
-            if (start_scene_name != null)
-            {
-                s_l.load_scene_Asynch(start_scene_name);
-            }
-            else
-            {
-                Debug.Log("Bruh enter the menu scene name properly");
-            }
+            Load_scene();
+        }
+    }
+
+    public void Load_scene()
+    {
+        if (start_scene_name != null)
+        {
+            s_l.load_scene_Asynch(start_scene_name);
+        }
+        else
+        {
+            Debug.Log("Bruh enter the menu scene name properly");
         }
     }
 }

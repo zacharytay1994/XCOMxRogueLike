@@ -14,6 +14,12 @@ public class SceneTransitionLoader : MonoBehaviour
 
     public Animator Animator;
 
+    AnimationClip white_to_black;
+    float white_to_black_length;
+
+    AnimationClip black_to_white;
+    float black_to_white_length;
+
     private void Awake()    //Make this object persistent
     {
         if (!instance)
@@ -30,7 +36,7 @@ public class SceneTransitionLoader : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        UpdateAnimClipTimes();
     }
 
     // Update is called once per frame
@@ -60,7 +66,7 @@ public class SceneTransitionLoader : MonoBehaviour
         scene_loaded = false;
         FadeToBlack();
 
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(white_to_black_length);
 
         AsyncOperation async = SceneManager.LoadSceneAsync(SceneName);
         while (!async.isDone)
@@ -89,5 +95,23 @@ public class SceneTransitionLoader : MonoBehaviour
     {
         Animator.SetBool("scene_loading", false);
         Animator.SetBool("scene_loaded", true);
+    }
+
+    public void UpdateAnimClipTimes()
+    {
+        AnimationClip[] clips = Animator.runtimeAnimatorController.animationClips;
+        foreach (AnimationClip clip in clips)
+        {
+            switch (clip.name)
+            {
+                case "BlackToWhite":
+                    black_to_white_length = clip.length;
+                    break;
+                case "WhiteToBlack":
+                    white_to_black_length = clip.length;
+                    break;
+                
+            }
+        }
     }
 }

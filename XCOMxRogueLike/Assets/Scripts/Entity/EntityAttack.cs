@@ -26,12 +26,33 @@ public class EntityAttack : MonoBehaviour
     /*public List<Vector3Int> ExecuteRange()
     {
         return 0;
+    }*/
+
+    public List<Vector3Int> ExecuteAOE(Vector3Int aoe_coordinate, int aoe)
+    {
+        List<Vector3Int> aoe_coordinate_list = new List<Vector3Int>();
+
+        for (int y = 0; y <= aoe; y++)
+        {
+            int offset = aoe - y;
+
+            for (int x = -offset; x <= offset; x++)
+            {
+                if (y != 0)
+                {
+                    aoe_coordinate_list.Add(new Vector3Int(aoe_coordinate.x + x, aoe_coordinate.y + y, 0));
+                    aoe_coordinate_list.Add(new Vector3Int(aoe_coordinate.x + x, aoe_coordinate.y - y, 0));
+                }
+                else
+                {
+                    aoe_coordinate_list.Add(new Vector3Int(aoe_coordinate.x + x, aoe_coordinate.y, 0));
+                }
+            }
+        }
+
+        return aoe_coordinate_list;
     }
 
-    public List<Vector3Int> ExecuteAOE()
-    {
-        return 0;
-    }*/
     public bool CheckForEnemyMelee(Constants.RoomTile[,] tile_list) { //checks for enemy on tiles that are in range for melee attacks
         bool flag = false;
             // get mouse click's position in 2d plane

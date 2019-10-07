@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8060704311558367123}
   - component: {fileID: 8060704311558367124}
   - component: {fileID: 8060704311558367125}
+  - component: {fileID: 7004890744465639527}
   m_Layer: 0
   m_Name: Creeper
   m_TagString: Untagged
@@ -93,3 +94,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72eb693424f504240ab5edb1571307ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7004890744465639527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8060704311558367126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51b5c719cf5c5724ca417c2d450ea4f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 0
+  range: 0
+  aoe: 0

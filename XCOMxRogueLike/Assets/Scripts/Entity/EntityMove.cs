@@ -73,6 +73,7 @@ public class EntityMove : MonoBehaviour
                     current_checkpoint_ = 0;
                 }
             }
+            
         }
     }
     

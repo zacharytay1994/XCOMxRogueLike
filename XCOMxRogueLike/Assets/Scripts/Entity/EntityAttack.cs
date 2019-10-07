@@ -5,10 +5,13 @@ using UnityEngine;
 [System.Serializable]
 public class EntityAttack : MonoBehaviour
 {
+<<<<<<< HEAD
     [SerializeField] private int damage;
     [SerializeField] private int range;
     [SerializeField] private int aoe;
     private Vector3Int selected_tile_;
+=======
+>>>>>>> 60bb148f792cc821b3be9c97e8065836aa08fa4f
 
     public enum Attack
     {

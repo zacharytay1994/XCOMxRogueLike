@@ -22,7 +22,7 @@ public class TilemapInput : MonoBehaviour
             Vector3Int gridPos = tilemap_.WorldToCell(mousePos);
 
             if (tilemap_.HasTile(gridPos))
-                Debug.Log("Hello World from " + (gridPos));
+                Debug.Log("Hello World from " + (gridPos));   
         }
     }
 }

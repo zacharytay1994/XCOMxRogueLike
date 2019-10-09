@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
+using UnityEditor;
 
 public class Entity { }
 [System.Serializable]
@@ -12,14 +14,47 @@ public class EntityAttack : MonoBehaviour
     [SerializeField] private int range_;
     [SerializeField] private int aoe_;
 
+    Tilemap tilemap_;
+    List<Vector3Int> melee_range_list_ = new List<Vector3Int>();
+
     public enum Attack
     {
         melee,
         range,
         aoe
     }
-    
-    public List<Vector3Int> wide_range (Vector3Int wide_range_coordinate, int range)
+
+    void Start()
+    {
+       tilemap_  = GameObject.Find("BaseLayer").GetComponent<Tilemap>();
+      
+    }
+    void Update()
+    {
+        
+    }
+
+    // Highlight cells that are within attack range
+    public void HighlightMeleeCells(List<Vector3Int> melee_range_list)
+    {
+
+        GameObject highlight_prefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Entities/Creeper.prefab", typeof(GameObject));
+        foreach (Vector3Int cell in melee_range_list_)
+        {
+            Instantiate(highlight_prefab, cell, Quaternion.identity);
+        }
+    }
+
+    void OnMouseOver()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log(tilemap_.WorldToCell(gameObject.transform.position));
+        }
+    }
+
+    // Return list of coordinates for long range / AOE attacks ('Flower' pattern)
+    public List<Vector3Int> wide_range(Vector3Int wide_range_coordinate, int range)
     {
         List<Vector3Int> wide_range_list = new List<Vector3Int>();
 
@@ -40,11 +75,11 @@ public class EntityAttack : MonoBehaviour
                 }
             }
         }
-
+        
         return wide_range_list;
     }
 
-    // Returns list of tiles' coordinates within melee range
+    // Return list of tiles' coordinates within melee range
     public List<Vector3Int> MeleeRange(Vector3Int player_position_, bool attack_type_)
     {
         List<Vector3Int> melee_range_list = new List<Vector3Int>();
@@ -93,7 +128,7 @@ public class EntityAttack : MonoBehaviour
 
         return melee_range_list;
     }
-
+    
     // Returns list of enemies' coordinates in attack range
     public List<Entity> EnemiesWithinRange(Constants.RoomTile[,] tile_list, List<Vector3Int> attack_range_list)
     {
@@ -139,3 +174,4 @@ public class EntityAttack : MonoBehaviour
     }
     #endregion
 }
+

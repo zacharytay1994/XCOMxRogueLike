@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEditor;
 
 public class Entity { }
 [System.Serializable]
@@ -14,6 +15,7 @@ public class EntityAttack : MonoBehaviour
     [SerializeField] private int range_;
     [SerializeField] private int aoe_;
     Tilemap tilemap_;
+    List<Vector3Int> melee_range_list_ = new List<Vector3Int>();
 
     public enum Attack
     {
@@ -24,8 +26,12 @@ public class EntityAttack : MonoBehaviour
     void Start()
     {
        tilemap_  = GameObject.Find("BaseLayer").GetComponent<Tilemap>();
+      
     }
-   
+   void Update()
+    {
+        
+    }
 
     /*public List<Vector3Int> ExecuteRange()
     {
@@ -84,7 +90,16 @@ public class EntityAttack : MonoBehaviour
         // }
         return flag;
     }
+    public void HighlightMeleeCells(List<Vector3Int> melee_range_list)
+    {
 
+        GameObject highlight_prefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Entities/Creeper.prefab", typeof(GameObject));
+        foreach (Vector3Int cell in melee_range_list_)
+        {
+            Instantiate(highlight_prefab, cell, Quaternion.identity);
+        }
+
+    }
     public bool CheckMeleeRange(Vector3Int player_position_, Vector3Int selected_tile_, bool attack_type_) //checks what tiles are in range for melee attacks
     {
         bool inrange = false;

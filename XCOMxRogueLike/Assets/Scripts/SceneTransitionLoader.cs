@@ -1,13 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class SceneTransitionLoader : MonoBehaviour
 {
     public static GameObject instance;
-
+    [Space(5)]
+    public Slider loading_bar;
     public float load_progress;
+    public TextMeshProUGUI tmp_text;
 
     public bool scene_loading;
     public bool scene_loaded;
@@ -15,10 +19,10 @@ public class SceneTransitionLoader : MonoBehaviour
     public Animator Animator;
 
     AnimationClip white_to_black;
-    float white_to_black_length;
+    [SerializeField] float white_to_black_length;
 
     AnimationClip black_to_white;
-    float black_to_white_length;
+    [SerializeField] float black_to_white_length;
 
     private void Awake()    //Make this object persistent
     {
@@ -62,8 +66,12 @@ public class SceneTransitionLoader : MonoBehaviour
 
     IEnumerator LoadSceneAsync(string SceneName)
     {
+        load_progress = 0;
+        UpdateProgressText();
+        loading_bar.value = load_progress;
         scene_loading = true;
         scene_loaded = false;
+        
         FadeToBlack();
 
         yield return new WaitForSeconds(white_to_black_length);
@@ -71,7 +79,9 @@ public class SceneTransitionLoader : MonoBehaviour
         AsyncOperation async = SceneManager.LoadSceneAsync(SceneName);
         while (!async.isDone)
         {
-            load_progress = Mathf.Clamp01(async.progress / 0.9f);
+            load_progress = (async.progress / 0.9f);
+            loading_bar.value = load_progress;
+            UpdateProgressText();
             Debug.Log("Load progress: " + load_progress * 100 + "%");
             yield return null;
         }
@@ -113,5 +123,10 @@ public class SceneTransitionLoader : MonoBehaviour
                 
             }
         }
+    }
+
+    public void UpdateProgressText()
+    {
+        tmp_text.text = Mathf.Floor(load_progress * 100) + "%";
     }
 }

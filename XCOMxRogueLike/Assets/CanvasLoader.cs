@@ -29,5 +29,10 @@ public class CanvasLoader : MonoBehaviour
             Debug.LogError("Scenemanager not found. Start game from SplashScene to generate Scenemanager.");
         }
     }
+
+    public void quit_game()
+    {
+        Application.Quit();
+    }
    
 }

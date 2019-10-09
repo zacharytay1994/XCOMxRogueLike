@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class Entity { }
 [System.Serializable]
@@ -12,7 +13,7 @@ public class EntityAttack : MonoBehaviour
     [SerializeField] private int damage_;
     [SerializeField] private int range_;
     [SerializeField] private int aoe_;
-
+    Tilemap tilemap_;
 
     public enum Attack
     {
@@ -20,8 +21,11 @@ public class EntityAttack : MonoBehaviour
         range,
         aoe
     }
-
-
+    void Start()
+    {
+       tilemap_  = GameObject.Find("BaseLayer").GetComponent<Tilemap>();
+    }
+   
 
     /*public List<Vector3Int> ExecuteRange()
     {
@@ -55,23 +59,29 @@ public class EntityAttack : MonoBehaviour
 
     public bool CheckForEnemyMelee(Constants.RoomTile[,] tile_list) { //checks for enemy on tiles that are in range for melee attacks
         bool flag = false;
-            // get mouse click's position in 2d plane
-        Vector3 pz = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        pz.z = 0;
-
-        // convert mouse click's position to Grid position
-        GridLayout gridLayout = transform.parent.GetComponentInParent<GridLayout>();
-        Vector3Int cellPosition = gridLayout.WorldToCell(pz);
-
-       // if(CheckMeleeRange(gameObject.transform ,cellPosition, attack_type_))
-
-        if (tile_list[cellPosition.x, cellPosition.y].is_occupied_)
+        
+        if (Input.GetMouseButtonDown(1))
         {
-          /*  if(tile_list[cellPosition.x, cellPosition.y].is_enemy_)
-            {
-                flag = true;
-            }*/
+            Vector3 pz = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            pz.z = 0;
+
+            // convert mouse click's position to Grid position
+
+            Vector3Int cellPosition = tilemap_.WorldToCell(pz);
+            Debug.Log(cellPosition);
         }
+        // get mouse click's position in 2d plane
+
+
+        // if(CheckMeleeRange(gameObject.transform ,cellPosition, attack_type_))
+
+        // if (tile_list[cellPosition.x, cellPosition.y].is_occupied_)
+        // {
+        /*  if(tile_list[cellPosition.x, cellPosition.y].is_enemy_)
+          {
+              flag = true;
+          }*/
+        // }
         return flag;
     }
 
@@ -108,7 +118,13 @@ public class EntityAttack : MonoBehaviour
 
         return inrange;
     }
-
+   void OnMouseOver()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {         
+            Debug.Log(tilemap_.WorldToCell(gameObject.transform.position));
+        }              
+    }
     // Targeted Ranged Attacks
     public bool CheckWithinRange(Constants.RoomTile[,] tile_list, List<Vector3Int> aoe_coordinates_list, ref List<Entity> entitylist)
     {
@@ -127,3 +143,4 @@ public class EntityAttack : MonoBehaviour
         return flag;
     }
 }
+

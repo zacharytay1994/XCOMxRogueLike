@@ -16,7 +16,7 @@ public class EntityMove : MonoBehaviour
     List<Node>  current_path_;                       // the current path in terms of Node checkpoints
     float       frame_time_ = 60.0f;                // (temporary) number of frame updates per cycle
     float       counter_ = 0.0f;                    // (temporary) increment counter
-    float       counter_speed_ = 5.0f;              // (temporary) speed to increment
+    float       counter_speed_ = 2.0f;              // (temporary) speed to increment
     int         current_checkpoint_;                // (temporary) index, e.g. current_path_[current_checkpoint_]
 
     // world is initialized

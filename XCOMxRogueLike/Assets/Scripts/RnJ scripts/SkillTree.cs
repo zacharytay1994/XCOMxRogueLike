@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SkillTree : MonoBehaviour
 {
-    [SerializeField] private List<SkillObject> all_skills_list_;
+    [SerializeField] private List<SkillObject> all_skills_list_
     // Start is called before the first frame update
     void Start()
     {

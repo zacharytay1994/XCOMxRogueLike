@@ -11,6 +11,10 @@ public class SceneTransitionLoader : MonoBehaviour
     [Space(5)]
     public Slider loading_bar;
     public float load_progress;
+    public float displayed_load_progress;
+
+    [Range(0.0f,1.0f)]
+    public float load_bar_speed;
     public TextMeshProUGUI tmp_text;
 
     public bool scene_loading;
@@ -67,8 +71,10 @@ public class SceneTransitionLoader : MonoBehaviour
     IEnumerator LoadSceneAsync(string SceneName)
     {
         load_progress = 0;
-        UpdateProgressText();
         loading_bar.value = load_progress;
+        displayed_load_progress = load_progress;
+        UpdateProgressText();
+        
         scene_loading = true;
         scene_loaded = false;
         
@@ -77,10 +83,22 @@ public class SceneTransitionLoader : MonoBehaviour
         yield return new WaitForSeconds(white_to_black_length);
 
         AsyncOperation async = SceneManager.LoadSceneAsync(SceneName);
-        while (!async.isDone)
+
+        while (!async.isDone || displayed_load_progress<1)
         {
             load_progress = (async.progress / 0.9f);
-            loading_bar.value = load_progress;
+
+            if ((load_progress - displayed_load_progress) > load_bar_speed)
+            {
+                displayed_load_progress = displayed_load_progress + (load_progress - displayed_load_progress) * load_bar_speed;
+            }
+            else
+            {
+                displayed_load_progress = load_progress;
+            }
+
+            loading_bar.value = displayed_load_progress;
+
             UpdateProgressText();
             Debug.Log("Load progress: " + load_progress * 100 + "%");
             yield return null;
@@ -127,6 +145,6 @@ public class SceneTransitionLoader : MonoBehaviour
 
     public void UpdateProgressText()
     {
-        tmp_text.text = Mathf.Floor(load_progress * 100) + "%";
+        tmp_text.text = Mathf.Floor(displayed_load_progress * 100) + "%";
     }
 }
